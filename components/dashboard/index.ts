@@ -1,4 +1,3 @@
-export * from "./identity-preview";
 export * from "./health-preview";
 export * from "./learning-preview";
 export * from "./relationship-preview";
@@ -8,3 +7,4 @@ export * from "./memory-preview";
 export * from "./files-preview";
 export * from "./finance-preview";
 export * from "./projects-preview";
+export * from "./day-preview"

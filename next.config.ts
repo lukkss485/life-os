@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remova qualquer bloco 'experimental' que contenha 'turbopack'
+  experimental: {
+    turbopack: {
+      root: "./",
+    },
+    serverActions: {
+      bodySizeLimit: "5mb", // Aumente conforme sua necessidade
+    },
+  },
 };
 
 export default nextConfig;

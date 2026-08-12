@@ -1,8 +1,17 @@
+
 import type { Metadata } from "next";
-import { Google_Sans, Google_Sans_Code } from "next/font/google"; // não existe no next/font
+import { Google_Sans, Google_Sans_Code, Geist, Instrument_Sans } from "next/font/google"; // não existe no next/font
 import Providers from "../lib/providers";
 import "./globals.css";
-import { Header } from "@/components/header";
+import { Dock, Header } from "@/components/header";
+import * as React from "react";
+import { PluginsProvider } from "@/components/PluginsContext";
+import { Toaster } from "@/components/ui/sonner";
+import { cn } from "@/lib/utils";
+
+const instrumentSansHeading = Instrument_Sans({ subsets: ['latin'], variable: '--font-heading' });
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const googleSans = Google_Sans({
   variable: "--font-google-sans",
@@ -21,20 +30,26 @@ export const metadata: Metadata = {
     icon: "/logo.svg",
   }
 };
-
+// ------------------------------------------
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="pt-BR"
-      className={` ${googleSans.variable} ${googleSansCode.variable} h-full antialiased`}
+      className={cn("h-full ", "antialiased ", "font-sans ", geist.variable, " ", instrumentSansHeading.variable)}
     >
-      <body className="min-h-full flex flex-col">
-        <Providers>
+      <head />
+      <body className="min-h-full flex flex-col relative">
+        <PluginsProvider>
+          <Providers>
+            <Dock />
             <Header>
+
               {children}
+              <Toaster position="bottom-right" duration={8000} />
             </Header>
-        </Providers>
+          </Providers>
+        </PluginsProvider>
       </body>
     </html>
   );

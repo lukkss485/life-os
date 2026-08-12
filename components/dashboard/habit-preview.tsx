@@ -21,7 +21,7 @@ export function HabitPreview() {
     "tomar agua",
     "ir para o computador",
     "programar",
-    "fazer trabalho",
+    "fazer trabalho/ou não",
     "iniciar atividade de dormir",
     "fazer nessesidades",
     "escovar os dentes",
@@ -35,13 +35,12 @@ export function HabitPreview() {
         Hábitos
       </h2>
       <Card className="p-5">
-        <Table>
-          <TableBody className="
-            overflow-y-hidden">
-            {habits.map((habits, index) => (
-              <TableRow key={habits}>
-                <TableCell className="font-medium">{habits}</TableCell>
-                <TableCell><PersistentCheckbox id={index} /></TableCell>
+        <Table className="w-full caption-bottom text-sm [&_tr:last-child]:rounded-b-xl [&_tr:first-child]:rounded-t-xl">
+          <TableBody className="[&_tr:last-child]:border-0 [&_tr:first-child]:rounded-t-xl">
+            {habits.map((habit, index) => (
+              <TableRow key={habit}>
+                <TableCell className="font-medium">{habit}</TableCell>
+                <TableCell><PersistentCheckbox group="a" id={index} /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -50,30 +49,43 @@ export function HabitPreview() {
     </section>
   );
 }
+// lib/utils.ts
+export function toBase26(num: number): string {
+  let str = "";
+  while (num >= 0) {
+    str = String.fromCharCode((num % 26) + 97) + str;
+    num = Math.floor(num / 26) - 1;
+  }
+  return str;
+}
 
-import { useStorage } from "@/lib"; // Ajuste o caminho se necessário
+// components/dashboard/PersistentCheckbox.tsx
+import { useStorage } from "@/lib"; // ajuste o caminho conforme seu projeto
 import { useEffect, useState } from "react";
 
-export function PersistentCheckbox({ id }: { id: number }) {
-  const checkboxKey = `checkbox-${id}`;
-  const { valor, addData } = useStorage("package1", checkboxKey);
-  const [checked, setChecked] = useState(false);
+export function PersistentCheckbox({ id, group, className }: { id: number, group: string, className?: string }) {
+  // back-end
+  // Gera o ID em letras: ex: group="a" + id=0 -> "a:a" | group="a" + id=1 -> "a:b"
+  const letterId = toBase26(id);
+  const checkboxKey = `checkbox-${letterId}-${group}`;
+  // Usamos o grupo como parte da chave no storage
+  const { valor, addData } = useStorage("package1.json", checkboxKey); 
+  // ele continuará funcionando perfeitamente pois a chave agora é única.
+  
 
-  // Use um estado para garantir que já tentamos carregar
-  const [loaded, setLoaded] = useState(false);
+  // front-end
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     if (valor !== null && valor !== undefined) {
       setChecked(String(valor) === "true");
-      setLoaded(true);
     }
-  }, [valor, id]);
+  }, [valor]);
 
-  const toggle = async (novoEstado: boolean) => {
-    setChecked(novoEstado);
-    // Tenta salvar diretamente
-    await addData({ [checkboxKey]: novoEstado });
+  const toggle = async (newState: boolean) => {
+    setChecked(newState);
+    await addData({ [checkboxKey]: newState });
   };
 
-  return <Checkbox checked={checked} onCheckedChange={toggle} />;
+  return <Checkbox checked={checked} onCheckedChange={toggle} className={className} />;
 }

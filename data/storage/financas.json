@@ -1,0 +1,40 @@
+{
+  "transactions": [
+    {
+      "description": "ass do Spotify",
+      "money": {
+        "amount": 5590,
+        "currency": "BRL"
+      },
+      "occurredAt": "2026-07-26T15:36:09.255Z",
+      "status": "Concluído",
+      "type": "expense",
+      "id": "f9036782-aec2-43e8-839e-a3d076bcd523",
+      "createdAt": "2026-07-26T15:36:09.394Z"
+    },
+    {
+      "description": "Ajuste de Saldo",
+      "money": {
+        "amount": 30000,
+        "currency": "BRL"
+      },
+      "occurredAt": "2026-07-25T00:20:23.173Z",
+      "status": "Concluído",
+      "type": "expense",
+      "id": "75c1fc9e-c4f7-4d3c-97e1-cf9395568533",
+      "createdAt": "2026-07-25T00:20:23.195Z"
+    },
+    {
+      "description": "Ajuste de Saldo",
+      "money": {
+        "amount": 100000,
+        "currency": "BRL"
+      },
+      "occurredAt": "2026-07-25T00:20:06.050Z",
+      "status": "Concluído",
+      "type": "income",
+      "id": "34aa68d5-8adc-4567-8c2a-cc5c7a02f618",
+      "createdAt": "2026-07-25T00:20:06.099Z"
+    }
+  ]
+}

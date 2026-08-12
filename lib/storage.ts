@@ -1,22 +1,27 @@
+// storage.ts
 import fs from "fs";
 import path from "path";
-
-// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export type PkgValue = string | number | boolean | null | PkgObject | PkgValue[];
 export interface PkgObject {
   [key: string]: PkgValue;
 }
 
-// ─── Caminho ──────────────────────────────────────────────────────────────────
+const STORAGE_DIR = path.join(process.cwd(), "data", "storage");
 
-const STORAGE_DIR = path.join(process.cwd(), "public", "static", "storage");
-
-function pkgPath(name: string) {
-  return path.join(STORAGE_DIR, name.endsWith(".json") ? name : `${name}.json`);
+// Só permite letras, números, hífen e underscore — bloqueia "../", "/", etc.
+function sanitizePkgName(name: string): string {
+  const base = name.replace(/\.json$/, "");
+  if (!/^[a-zA-Z0-9_-]+$/.test(base)) {
+    throw new Error(`[storage] nome de pacote inválido: "${name}"`);
+  }
+  return base;
 }
 
-// ─── I/O base ─────────────────────────────────────────────────────────────────
+function pkgPath(name: string) {
+  const safe = sanitizePkgName(name);
+  return path.join(STORAGE_DIR, `${safe}.json`);
+}
 
 export function readRaw(pkgName: string): PkgObject {
   const p = pkgPath(pkgName);
@@ -28,8 +33,6 @@ export function writeRaw(pkgName: string, data: PkgObject) {
   fs.mkdirSync(STORAGE_DIR, { recursive: true });
   fs.writeFileSync(pkgPath(pkgName), JSON.stringify(data, null, 2), "utf-8");
 }
-
-// ─── Utilitários de pacote ────────────────────────────────────────────────────
 
 export function createPkg(pkgName: string, initialData: PkgObject = {}): void {
   if (fs.existsSync(pkgPath(pkgName)))

@@ -18,12 +18,22 @@ export function FilesPreview() {
 
   // Sincroniza o valor do storage com o estado local
   useEffect(() => {
-    if (valor) {
-      try {
-        setArquivos(JSON.parse(valor));
-      } catch (e) {
-        console.error("Erro ao converter JSON do storage", e);
+    if (!valor || valor === "undefined") {
+      setArquivos([]);
+      return;
+    }
+  
+    try {
+      const parsed = JSON.parse(valor);
+  
+      if (Array.isArray(parsed)) {
+        setArquivos(parsed);
+      } else {
+        setArquivos([]);
       }
+    } catch (e) {
+      console.error("Erro ao converter JSON do storage", e);
+      setArquivos([]);
     }
   }, [valor]);
 
@@ -38,18 +48,21 @@ export function FilesPreview() {
       peso: (file.size / 1024 / 1024).toFixed(2) + " MB",
     };
 
-    // Salva no seu sistema via Server Action (JSON)
+    // Salva no seu sistema via Server Action (JSON)  
     const listaAtualizada = [...arquivos, novoArquivo];
-    await addData({ "lista-de-arquivos": JSON.stringify(listaAtualizada) });
+    await addData({
+      "lista-de-arquivos": listaAtualizada
+    });
   };
 
   return (
-    <div className="">
+    <section className="space-y-2">
       <h2 className="text-2xl font-semibold mb-4">Arquivos</h2>
 
       <Card className="p-5">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-medium text-zinc-600">Meus Arquivos</h2>
+        <div className="flex justify-between max-[450]:justify-center items-center mb-4">
+
+          <h2 className="text-xl font-medium text-zinc-600 dark:text-zinc-300 max-[450]:hidden">Meus Arquivos</h2>
           
           {/* Input invisível que o botão aciona */}
           <input 
@@ -61,7 +74,7 @@ export function FilesPreview() {
           
           <Button 
             variant="outline" 
-            className="text-[1rem] font-semibold text-zinc-600"
+            className="text-[1rem] font-semibold text-zinc-600 hover:-translate-x-1 dark:text-zinc-300 max-[450]:hover:translate-x-0"
             onClick={() => fileInputRef.current?.click()}
           >
             Adicionar Arquivo(s)
@@ -84,6 +97,6 @@ export function FilesPreview() {
           )}
         </div>
       </Card>
-    </div>
+    </section>
   );
 }

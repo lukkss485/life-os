@@ -1,4 +1,6 @@
 // components/geral/dashboard-hero.tsx
+import { creator } from "@/creator";
+ 
 
 interface DashboardHeroProps {
   name: string;
@@ -25,7 +27,7 @@ export function DashboardHero({
   school,
 }: DashboardHeroProps) {
   return (
-    <section className="space-y-2 ">
+    <section className="space-y-2">
       <h1 className="text-4xl font-bold">
         Olá, {name} 👋
       </h1>

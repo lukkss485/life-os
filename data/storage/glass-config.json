@@ -1,0 +1,14 @@
+{
+  "angle": 45,
+  "highlightStrength": 1,
+  "spread": 2,
+  "highlightOpacity": 0.5,
+  "rimOpacity": 0.15,
+  "contactShadowOpacity": 0.12,
+  "dropShadowOpacity": 0.4,
+  "glassOpacity": 10,
+  "blur": 0,
+  "depth": 10,
+  "chromaticAberration": 0,
+  "distortionStrength": 300
+}

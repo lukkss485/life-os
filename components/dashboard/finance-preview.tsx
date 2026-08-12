@@ -1,21 +1,22 @@
 "use client";
-import { Card } from "../ui/card";
+import { Card, CardContent, CardHeader, CardAction, CardDescription, CardFooter, CardTitle } from "../ui/card";
+
 
 export function FinancePreview() {
   return (
-    <section className="space-y-2 min-h-full">
+    // Troquei min-h-full por h-full
+    <section className="space-y-2 h-full">
       <h2 className="text-2xl font-semibold">
         Finanças
       </h2>
 
-      <Card className="p-5 min-h-full">
-        <div className="space-y-2">
-          <p>Saldo: R$ 0,00</p>
-          <p>Receitas: R$ 0,00</p>
-          <p>Despesas: R$ 0,00</p>
-          <p>Economia: 0%</p>
-        </div>
-        <FinanceChart></FinanceChart>
+      {/* Adicionei flex-grow para o card ocupar todo o espaço vertical restante */}
+      <Card className="p-5 flex flex-col flex-grow gap-1">
+        <p>Saldo: R$ { }</p>
+        <p>Receitas: R$ 0,00</p>
+        <p>Despesas: R$ 0,00</p>
+        <p>Economia: 0%</p>
+        <FinanceChart />
       </Card>
     </section>
   )
@@ -42,7 +43,7 @@ export function FinanceChart() {
           {/* Linha da Meta */}
           <ReferenceLine y={2500} label="Meta" strokeDasharray="10 5" className="opacity-ful" />
           {/* Ganhos (Verde) e Perdas (Vermelho) com StackId */}
-          <Bar dataKey="ganho" fill="#22c55e" radius={10} stackId="a" barSize={75} /> 
+          <Bar dataKey="ganho" fill="#22c55e" radius={10} stackId="a" barSize={75} />
           <Bar dataKey="perda" fill="#ef4444" radius={10} stackId="a" barSize={75} />
         </ComposedChart>
       </ResponsiveContainer>

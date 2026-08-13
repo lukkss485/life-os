@@ -1,1 +1,1 @@
-# projeto react ts + next ts + storage (pacotes .json que vai ser editados e que pode ler)
+# é do lucas

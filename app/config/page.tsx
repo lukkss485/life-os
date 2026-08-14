@@ -181,13 +181,9 @@ const fundos: Fundo[] = [
     nome: "Quadriculado",
     tipo: "style",
     style: {
-      backgroundColor: CHECKER_ESCURO,
-      backgroundImage: `linear-gradient(45deg, ${CHECKER_CLARO} 25%, transparent 25%),
-        linear-gradient(-45deg, ${CHECKER_CLARO} 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, ${CHECKER_CLARO} 75%),
-        linear-gradient(-45deg, transparent 75%, ${CHECKER_CLARO} 75%)`,
-      backgroundSize: `${CHECKER_TAM}px ${CHECKER_TAM}px`,
-      backgroundPosition: `0 0, 0 ${CHECKER_TAM / 2}px, ${CHECKER_TAM / 2}px -${CHECKER_TAM / 2}px, -${CHECKER_TAM / 2}px 0px`,
+     backgroundColor: '#000000',
+    backgroundImage: 'linear-gradient(to right, #ffffff 1px, transparent 1px),linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
+    backgroundSize: '40px 40px',
     },
     swatch: {
       backgroundColor: CHECKER_ESCURO,

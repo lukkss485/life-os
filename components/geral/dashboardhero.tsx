@@ -1,57 +1,56 @@
 // components/geral/dashboard-hero.tsx
 import { creator } from "@/creator";
- 
+import { useEffect, useState } from "react";
 
-interface DashboardHeroProps {
-  name: string;
-  weather?: {
-    temp: number;
-    condition: string;
-  };
 
-  date: string;
-  time: string;
+export function DashboardHero() {
+  const [dadosData, setDadosData] = useState({
+    dataStr: "",
+    horaStr: "",
+    diaDaSemana: "",
+    trimestre: 1,
+    bimestre: 1,
+  });
+  useEffect(() => {
+    const atualizarHorario = () => {
+      const agora = new Date();
 
-  school?: {
-    bimestre: string;
-    trimestre: string;
-    semestre: string;
-  };
-}
+      const dataStr = agora.toLocaleDateString("pt-BR", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      });
 
-export function DashboardHero({
-  name,
-  weather,
-  date,
-  time,
-  school,
-}: DashboardHeroProps) {
+      const horaStr = agora.toLocaleTimeString("pt-BR", {
+        hour: "numeric",
+        minute: "2-digit",
+      });
+
+      const diaDaSemana = agora.toLocaleString("pt-BR", { weekday: "long" });
+      const mesAtual = agora.getMonth() + 1;
+      const trimestre = Math.ceil(mesAtual / 3);
+      const bimestre = Math.ceil(mesAtual / 2) - 1;
+
+      setDadosData({ dataStr, horaStr, diaDaSemana, trimestre, bimestre });
+    };
+
+    atualizarHorario();
+    const intervalo = setInterval(atualizarHorario, 1000);
+    return () => clearInterval(intervalo);
+  }, []);
   return (
-    <section className="space-y-2">
-      <h1 className="text-4xl font-bold">
-        Olá, {name} 👋
+    <div className="gap-5 flex flex-col">
+      <h1 className="text-2xl text-layer1 font-bold capitalize font-heading">
+        Olá, {creator.name}! seja bem vindo(a)!
       </h1>
-      <div className="flex gap-4">
-        {weather && (
-          <p className="text-muted-foreground">
-            {weather.temp}° • {weather.condition}
-          </p>
-        )}
-
-        <p className="text-muted-foreground">
-          {time}
+      <div className="">
+        <h3 className="text-xl text-card-foreground/55 font-medium capitalize">
+          {dadosData.dataStr} , {dadosData.diaDaSemana} , {dadosData.horaStr}
+        </h3>
+        <p className="text-shadow-xs text-card-foreground/55 font-medium capitalize">
+          {dadosData.trimestre}º Trimestre , {dadosData.bimestre}º Bimestre
         </p>
-
-        <p className="text-muted-foreground">
-          {date}
-        </p>
-
-        {school && (
-          <p className="text-muted-foreground">
-            {school.bimestre} • {school.trimestre} • {school.semestre}
-          </p>
-        )}
       </div>
-    </section>
+    </div>
   );
 }

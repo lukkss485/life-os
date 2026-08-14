@@ -15,11 +15,13 @@ import { Calculadora } from "./plugins/Calc";
 // Estado local para controle simples de escala
 let currentZoom = 1;
 
+export const animaisPlugins = [];
 export const notasPlugins = [];
 
-export const animaisPlugins = [];
+import { NotebookPen, FilePlus, List, Trash2 } from "lucide-react";
 
 export const globalPlugins: Plugin[] = [
+  
   {
     name: "zoom",
     icon: Search,
@@ -77,6 +79,40 @@ export const globalPlugins: Plugin[] = [
             localStorage.clear();
             window.location.reload();
           }
+        },
+      },
+    ],
+  },
+  {
+    name: "Notas",
+    icon: NotebookPen,
+    miniplugin: [
+      {
+        name: "Nova nota",
+        icon: FilePlus,
+        code: async () => {
+          const texto = prompt("Digite sua nota:");
+          if (!texto) return;
+
+          await fetch("/api/notas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ texto }),
+          });
+        },
+      },
+      {
+        name: "Ver notas",
+        icon: List,
+        code: async () => {
+          const res = await fetch("/api/notas");
+          const notas = await res.json();
+
+          alert(
+            notas.length
+              ? notas.map((n: any) => `#${n.id} • ${n.texto}`).join("\n")
+              : "Nenhuma nota ainda."
+          );
         },
       },
     ],

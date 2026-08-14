@@ -7,7 +7,7 @@ import { Separator } from "./ui/separator";
 import { creator } from "@/creator";
 import { ThemeToggle } from "./theme-togle";
 import { alllinks } from "./header-links";
-import { ChevronDown, CircleAlert, LayoutDashboard, Menu, Settings, X, Minus, Square, Layers2, ChevronUp } from "lucide-react";
+import { ChevronDown, CircleAlert, LayoutDashboard, Menu, Settings, X, Minus, Square, Layers2, ChevronUp, Home } from "lucide-react";
 import "../app/globals.css"
 import { Button } from './ui/button';
 import { BlurReveal } from './blur-reveal';
@@ -254,28 +254,25 @@ export function Header({
             height={356}
             radius={25.2}
             width={256}
-            blur={1}
-            chromaticAberration={10}
+            blur={0}
+            chromaticAberration={0}
             strength={100}
             className="absolute top-21 left-4 z-50 w-64 max-h-[356px] backdrop-blur-[0.5rem] rounded-2xl"
           >
             <GlassElement
               depth={1}
-              height={400}
-              radius={100}
-              width={400}
-              blur={10}
-              chromaticAberration={10}
-              strength={1}
-              className="max-h-[40px] max-w-[40px] absolute left-68 z-100000000000000  bg-muted/50 hover:bg-muted/80 hover:ring hover:ring-muted"
+              height={40}
+              radius={20}
+              width={40}
+              blur={0}
+              chromaticAberration={0}
+              strength={100}
+              className="absolute left-68 z-100000000000000"
             >
               <Button onClick={() => setIsMenuOpen(false)} className='h-[40px] w-[40px] ' variant='ghost'> <X size={20} /></Button>
             </GlassElement>
 
-            <div className="relative z-50 overflow-y-hidden rounded-2xl bg-zinc-200/50 dark:bg-zinc-900/50 backdrop-blur-[0.5rem] border border-accent dark:border-t dark:border-t-zinc-500 dark:border-x dark:border-b dark:border-zinc-800 p-4 shadow-lg xl:hidden">
-
-              {/* faz esse botão ir mais para a direita , por algun motivo ele não aparece fora da div */}
-              {/* Aqui você repete a lógica da sua barra lateral ou cria um componente separado */}
+            <div className="relative z-50 overflow-y-hidden rounded-2xl p-4 shadow-lg xl:hidden">
               <nav className="flex flex-col gap-2">
                 <NavItem icon={LayoutDashboard} href="/">Dashboard</NavItem>
                 <Separator className='h-[2px]' />
@@ -313,39 +310,6 @@ export function Header({
           </div>
         </main>
       </div>
-      <aside className="hidden xl:flex flex-col gap-6 w-[320px] shrink-0">
-        <div className="w-full h-full flex flex-col p-2">
-          <h3 className="text-xl font-medium text-card-foreground mb-4 ml-2">Mensagens</h3>
-
-          {/* Container Glass para as mensagens */}
-          <div className="flex-1 overflow-y-auto p-4 goodscroll flex flex-col gap-4">
-            {messages.map((msg) => (
-              <Message key={msg.id} align={msg.senderId === 'me' ? 'end' : 'start'}>
-                <MessageContent>
-                  <Bubble variant={msg.senderId === 'me' ? 'default' : 'muted'}>
-                    <BubbleContent>{msg.text}</BubbleContent>
-                    {/* Aqui exibimos o tempo formatado */}
-                    <div className="text-[10px] opacity-50 mt-1">
-                      {formatMessageDate(new Date(msg.timestamp))}
-                    </div>
-                  </Bubble>
-                </MessageContent>
-              </Message>
-            ))}
-
-            {/* O Marker de "typing" continua aqui embaixo */}
-          </div>
-
-          {/* Input de texto fixo no fundo do div */}
-          <div className="p-3 border-t border-white/10 bg-black/20">
-            <input
-              type="text"
-              placeholder="Mensagem..."
-              className="w-full bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground"
-            />
-          </div>
-        </div>
-      </aside>
     </header >
   );
 }
@@ -567,7 +531,7 @@ function NavItem({ href = "#", icon: Icon, children: label, miniLinks, notificat
           )}
         </Link>
         <div onClick={() => miniLinks && setIsOpen(!isOpen)}>
-          {miniLinks && <ChevronDown size={16} className={`transition-transform ${isOpen ? '' : 'rotate-180'}`} />}
+          {miniLinks && <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
         </div>
       </div>
 
@@ -606,71 +570,100 @@ function NavItem({ href = "#", icon: Icon, children: label, miniLinks, notificat
 }
 
 // partes
-
-// dock
 export function Dock() {
-  const pathname = usePathname();
+  const pathname = usePathname()
+
   const getPlugins = () => {
-    if (pathname.includes("/animais")) return [...globalPlugins, ...animaisPlugins];
-    if (pathname.includes("/notas")) return [...globalPlugins, ...notasPlugins];
-    return globalPlugins;
-  };
-  const currentPlugins = getPlugins();
-  // Exemplo: baseW=220, baseH=60, radius=25.2
-  const { values, onMouseEnter, onMouseLeave } = useGlassBounce(250, 60, 25.2, 0.14, 2.5, 170);
+    if (pathname.includes("/animais")) return [...globalPlugins, ...animaisPlugins]
+    if (pathname.includes("/notas")) return [...globalPlugins, ...notasPlugins]
+    return globalPlugins
+  }
+
+  const currentPlugins = getPlugins()
+  const pluginsRef = React.useRef<HTMLDivElement>(null)
+
+  function scrollPlugins(direction: "up" | "down") {
+    pluginsRef.current?.scrollBy({
+      left: direction === "up" ? -80 : 80,
+      behavior: "smooth",
+    })
+  }
+
   return (
-    <div
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      className="absolute z-1000 bottom-8 left-1/2 -translate-x-1/2 scale-80 hover:scale-130 hover:-translate-y-5" // Movemos o estilo de posição para cá
+    <motion.div
+      initial={{ y: 40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="fixed z-[1000] w-fit h-fit bottom-8 left-1/2 -translate-x-1/2 hover:-translate-y-5 transition-transform"
     >
       <GlassElement
-        radius={25}
-        height={values.height}
-        width={values.width}
-        angle={45}
-        highlightStrength={1}
-        spread={2}
-        highlightOpacity={0.5}
-        rimOpacity={0.15}
-        contactShadowOpacity={0.35}
-        dropShadowOpacity={0.4}
-        glassOpacity={50}
-        strength={100}
-        blur={0.1}
+        radius={30}
+        height={60}
+        width={500}
+        strength={90}
         depth={5}
-        chromaticAberration={0}
-        className="flex items-center justify-center gap-0"
+        glassOpacity={50}
+        blur={0.8}
+        className="flex items-center justify-center gap-3 px-2 max-w-[95vw]"
       >
-        <div className="flex flex-col ">
-          <button className="pl-2 cursor-pointer">
-            <ChevronUp size={20} />
-          </button>
-          <Separator />
-          <button className="pl-2 cursor-pointer">
-            <ChevronDown size={20} />
-          </button>
+        {/* ── Zona fixa esquerda: scroll dos plugins ── */}
+        <div className="flex items-center gap-1">
+          <div className="flex flex-col">
+            <button
+              onClick={() => scrollPlugins("up")}
+              className="pl-2 cursor-pointer"
+              aria-label="Rolar plugins pra trás"
+            >
+              <ChevronUp size={16} />
+            </button>
+            <button
+              onClick={() => scrollPlugins("down")}
+              className="pl-2 cursor-pointer"
+              aria-label="Rolar plugins pra frente"
+            >
+              <ChevronDown size={16} />
+            </button>
+          </div>
         </div>
-        <Separator orientation='vertical' />
-        {/* Adicionamos w-full h-full para garantir que o flex centralize o conteúdo */}
-        <div className="flex items-center justify-center gap-4 w-full h-full">
-          {currentPlugins.map((plugin, i) => (
-            <BlurReveal key={i} className="relative">
-              <PluginsItem
-                icon={plugin.icon}
-                miniplugin={plugin.miniplugin}
-                code={plugin.code}
-                isBeta={plugin.isBeta}
-              >
-                {plugin.name}
-              </PluginsItem>
-            </BlurReveal>
-          ))}
+
+        {/* ── Zona dinâmica central: plugins da página atual ── */}
+        <div
+          ref={pluginsRef}
+          className="flex items-center justify-center gap-4 w-full h-fit border-l border-border overflow-x-auto scrollbar-none"
+        >
+          {currentPlugins.length === 0 ? (
+            <span className="text-xs text-muted-foreground px-2">Sem atalhos aqui</span>
+          ) : (
+            currentPlugins.map((plugin) => (
+              <BlurReveal key={plugin.name} className="relative shrink-0">
+                <PluginsItem
+                  icon={plugin.icon}
+                  miniplugin={plugin.miniplugin}
+                  code={plugin.code}
+                  isBeta={plugin.isBeta}
+                >
+                  {plugin.name}
+                </PluginsItem>
+              </BlurReveal>
+            ))
+          )}
         </div>
-        <CommandManyItems />
+        {/* <div
+          className="flex items-center justify-center gap-4 w-fit h-fit border-l border-border overflow-x-auto scrollbar-none"
+        >
+        </div> */}
+
+        <div className="flex items-center gap-3 border-l pl-4 border-border">
+          <Link href="/" aria-label="Página inicial">
+            <button className="cursor-pointer p-1.5 rounded-full hover:bg-white/10 transition-colors">
+              <Home size={20} className={pathname === "/" ? "text-primary" : ""} />
+            </button>
+          </Link>
+          <ThemeToggle />
+        </div>
       </GlassElement>
-    </div>
-  );
+    </motion.div>
+  )
 }
 
 // coisa

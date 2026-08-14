@@ -140,7 +140,7 @@ function AnimalCard({
   globalData,
   salvarAnimal,
 }: {
-  animal: Animal | undefined;
+  animal: Animal;
   Scale: boolean;
   globalData: GlobalStorage;
   salvarAnimal: (id: string, data: Partial<AnimalStorageData>) => Promise<void>;

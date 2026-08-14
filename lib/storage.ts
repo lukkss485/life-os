@@ -1,5 +1,5 @@
 // storage.ts
-import fs from "fs";
+import Database from "better-sqlite3";
 import path from "path";
 
 export type PkgValue = string | number | boolean | null | PkgObject | PkgValue[];
@@ -7,9 +7,23 @@ export interface PkgObject {
   [key: string]: PkgValue;
 }
 
-const STORAGE_DIR = path.join(process.cwd(), "data", "storage");
+const DB_PATH = path.join(process.cwd(), "data", "storage.db");
 
-// Só permite letras, números, hífen e underscore — bloqueia "../", "/", etc.
+const globalForDb = globalThis as unknown as { _storageDb?: Database.Database };
+
+const db = globalForDb._storageDb ?? new Database(DB_PATH);
+
+if (process.env.NODE_ENV !== "production") {
+  globalForDb._storageDb = db;
+}
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS pkgs (
+    name TEXT PRIMARY KEY,
+    data TEXT NOT NULL
+  )
+`);
+
 function sanitizePkgName(name: string): string {
   const base = name.replace(/\.json$/, "");
   if (!/^[a-zA-Z0-9_-]+$/.test(base)) {
@@ -18,37 +32,38 @@ function sanitizePkgName(name: string): string {
   return base;
 }
 
-function pkgPath(name: string) {
-  const safe = sanitizePkgName(name);
-  return path.join(STORAGE_DIR, `${safe}.json`);
-}
-
 export function readRaw(pkgName: string): PkgObject {
-  const p = pkgPath(pkgName);
-  if (!fs.existsSync(p)) throw new Error(`[storage] pacote não encontrado: "${pkgName}"`);
-  return JSON.parse(fs.readFileSync(p, "utf-8")) as PkgObject;
+  const safe = sanitizePkgName(pkgName);
+  const row = db.prepare("SELECT data FROM pkgs WHERE name = ?").get(safe) as
+    | { data: string }
+    | undefined;
+
+  if (!row) throw new Error(`[storage] pacote não encontrado: "${pkgName}"`);
+  return JSON.parse(row.data) as PkgObject;
 }
 
 export function writeRaw(pkgName: string, data: PkgObject) {
-  fs.mkdirSync(STORAGE_DIR, { recursive: true });
-  fs.writeFileSync(pkgPath(pkgName), JSON.stringify(data, null, 2), "utf-8");
+  const safe = sanitizePkgName(pkgName);
+  db.prepare(
+    `INSERT INTO pkgs (name, data) VALUES (?, ?)
+     ON CONFLICT(name) DO UPDATE SET data = excluded.data`
+  ).run(safe, JSON.stringify(data));
 }
 
 export function createPkg(pkgName: string, initialData: PkgObject = {}): void {
-  if (fs.existsSync(pkgPath(pkgName)))
-    throw new Error(`[storage] pacote já existe: "${pkgName}"`);
+  const safe = sanitizePkgName(pkgName);
+  const existe = db.prepare("SELECT 1 FROM pkgs WHERE name = ?").get(safe);
+  if (existe) throw new Error(`[storage] pacote já existe: "${pkgName}"`);
   writeRaw(pkgName, initialData);
 }
 
 export function deletePkg(pkgName: string): void {
-  const p = pkgPath(pkgName);
-  if (!fs.existsSync(p)) throw new Error(`[storage] pacote não encontrado: "${pkgName}"`);
-  fs.unlinkSync(p);
+  const safe = sanitizePkgName(pkgName);
+  const result = db.prepare("DELETE FROM pkgs WHERE name = ?").run(safe);
+  if (result.changes === 0) throw new Error(`[storage] pacote não encontrado: "${pkgName}"`);
 }
 
 export function listPkgs(): string[] {
-  if (!fs.existsSync(STORAGE_DIR)) return [];
-  return fs.readdirSync(STORAGE_DIR)
-    .filter(f => f.endsWith(".json"))
-    .map(f => f.replace(".json", ""));
+  const rows = db.prepare("SELECT name FROM pkgs").all() as { name: string }[];
+  return rows.map((r) => r.name);
 }
